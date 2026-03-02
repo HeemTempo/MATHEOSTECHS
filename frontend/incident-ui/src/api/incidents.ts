@@ -1,0 +1,131 @@
+import axiosInstance from './axiosInstance';
+import type { User } from './auth';
+
+export interface Incident {
+  id: number;
+  title: string;
+  description: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  status: 'open' | 'investigating' | 'resolved' | 'closed';
+  reporter: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  assigned_user: {
+    id: number;
+    name: string;
+    email: string;
+  } | null;
+  comments?: Comment[];
+  updates?: IncidentUpdate[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IncidentUpdate {
+  id: number;
+  incident_id: number;
+  old_status: string;
+  new_status: string;
+  updated_by: number;
+  updater: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  created_at: string;
+}
+
+export interface Comment {
+  id: number;
+  incident_id: number;
+  user_id: number;
+  comment: string;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  created_at: string;
+}
+
+export interface IncidentsResponse {
+  success: boolean;
+  message: string;
+  data: Incident[];
+  meta?: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number;
+    to: number;
+  };
+  links?: {
+    first: string;
+    last: string;
+    prev: string | null;
+    next: string | null;
+  };
+}
+
+export interface IncidentResponse {
+  success: boolean;
+  message: string;
+  data: Incident;
+}
+
+export interface CreateIncidentData {
+  title: string;
+  description: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+}
+
+export interface IncidentFilters {
+  status?: string;
+  severity?: string;
+  assigned_to?: number;
+  reported_by?: number;
+  search?: string;
+  sort_by?: string;
+  sort_order?: 'asc' | 'desc';
+  per_page?: number;
+  page?: number;
+  assigned_only?: string;
+}
+
+export const incidentsApi = {
+  getAll: async (filters?: IncidentFilters): Promise<IncidentsResponse> => {
+    const params = new URLSearchParams();
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          params.append(key, String(value));
+        }
+      });
+    }
+    const response = await axiosInstance.get(`/incidents?${params.toString()}`);
+    return response.data;
+  },
+
+  getById: async (id: number): Promise<Incident> => {
+    const response = await axiosInstance.get(`/incidents/${id}`);
+    return response.data.data; // Extract data from response
+  },
+
+  create: async (data: CreateIncidentData): Promise<IncidentResponse> => {
+    const response = await axiosInstance.post('/incidents', data);
+    return response.data;
+  },
+
+  updateStatus: async (id: number, status: string): Promise<IncidentResponse> => {
+    const response = await axiosInstance.put(`/incidents/${id}/status`, { status });
+    return response.data;
+  },
+
+  assign: async (id: number, assigned_to: number): Promise<IncidentResponse> => {
+    const response = await axiosInstance.put(`/incidents/${id}/assign`, { assigned_to });
+    return response.data;
+  },
+};
