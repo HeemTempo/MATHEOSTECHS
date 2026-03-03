@@ -172,4 +172,60 @@ class UserController extends Controller
             'data' => UserResource::collection($reporters)
         ]);
     }
+
+    public function activate(Request $request, $id)
+    {
+        // Only admins can activate users
+        if ($request->user()->role !== 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Access denied',
+                'error' => 'You need admin privileges to activate users'
+            ], 403);
+        }
+
+        try {
+            $user = $this->userService->activateUser($id, $request->user()->id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User activated successfully',
+                'data' => new UserResource($user)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Could not activate user',
+                'error' => $e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function deactivate(Request $request, $id)
+    {
+        // Only admins can deactivate users
+        if ($request->user()->role !== 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Access denied',
+                'error' => 'You need admin privileges to deactivate users'
+            ], 403);
+        }
+
+        try {
+            $user = $this->userService->deactivateUser($id, $request->user()->id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User deactivated successfully',
+                'data' => new UserResource($user)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Could not deactivate user',
+                'error' => $e->getMessage()
+            ], 422);
+        }
+    }
 }

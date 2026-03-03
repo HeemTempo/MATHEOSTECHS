@@ -33,12 +33,31 @@ class AuthController extends Controller
     {
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        // Check if user exists
+        if (!$user) {
             return response()->json([
                 'success' => false,
                 'message' => 'Login failed',
                 'error' => 'The email or password you entered is incorrect. Please try again.'
             ], 401);
+        }
+
+        // Check if password is correct
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Login failed',
+                'error' => 'The password you entered is incorrect. Please try again.'
+            ], 401);
+        }
+
+        // Check if user is active
+        if (!$user->is_active) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Account inactive',
+                'error' => 'Your account has been deactivated. Please contact your administrator to activate your account.'
+            ], 403);
         }
 
         $token = $user->createToken('auth-token')->plainTextToken;

@@ -10,6 +10,7 @@ export interface User {
   name: string;
   email: string;
   role: 'reporter' | 'operator' | 'admin';
+  is_active?: boolean;
 }
 
 export interface LoginResponse {

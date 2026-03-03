@@ -85,4 +85,14 @@ export const usersApi = {
     const response = await axiosInstance.get<UsersResponse>('/reporters');
     return response.data;
   },
+
+  activate: async (id: number) => {
+    const response = await axiosInstance.put<UserResponse>(`/users/${id}/activate`);
+    return response.data;
+  },
+
+  deactivate: async (id: number) => {
+    const response = await axiosInstance.put<UserResponse>(`/users/${id}/deactivate`);
+    return response.data;
+  },
 };

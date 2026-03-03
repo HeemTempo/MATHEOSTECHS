@@ -27,6 +27,7 @@ class UserService
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'role' => $data['role'], // reporter, operator, or admin
+            'is_active' => false, // New users are inactive by default
         ]);
 
         // Log audit
@@ -35,7 +36,7 @@ class UserService
             'created_user',
             'User',
             $user->id,
-            "Created {$user->role}: {$user->email}"
+            "Created {$user->role}: {$user->email} (inactive)"
         );
 
         return $user;
@@ -43,7 +44,7 @@ class UserService
 
     public function getAllUsers($filters = [])
     {
-        $query = User::select('id', 'name', 'email', 'role', 'created_at');
+        $query = User::select('id', 'name', 'email', 'role', 'is_active', 'created_at');
 
         // Filter by role
         if (!empty($filters['role'])) {
@@ -79,7 +80,7 @@ class UserService
 
     public function getUserById($id)
     {
-        return User::select('id', 'name', 'email', 'role', 'created_at')
+        return User::select('id', 'name', 'email', 'role', 'is_active', 'created_at')
             ->findOrFail($id);
     }
 
@@ -146,5 +147,59 @@ class UserService
         return User::where('role', 'operator')
             ->select('id', 'name', 'email')
             ->get();
+    }
+
+    public function activateUser($id, $activatorId)
+    {
+        $user = User::findOrFail($id);
+        
+        if ($user->is_active) {
+            throw new \Exception('User is already active');
+        }
+
+        $user->is_active = true;
+        $user->save();
+
+        // Log audit
+        $this->auditLogService->log(
+            $activatorId,
+            'activated_user',
+            'User',
+            $user->id,
+            "Activated user: {$user->email}"
+        );
+
+        return $user;
+    }
+
+    public function deactivateUser($id, $deactivatorId)
+    {
+        $user = User::findOrFail($id);
+
+        // Prevent deactivating yourself
+        if ($user->id === $deactivatorId) {
+            throw new \Exception('You cannot deactivate your own account');
+        }
+
+        if (!$user->is_active) {
+            throw new \Exception('User is already inactive');
+        }
+
+        $user->is_active = false;
+        $user->save();
+
+        // Revoke all tokens
+        $user->tokens()->delete();
+
+        // Log audit
+        $this->auditLogService->log(
+            $deactivatorId,
+            'deactivated_user',
+            'User',
+            $user->id,
+            "Deactivated user: {$user->email}"
+        );
+
+        return $user;
     }
 }

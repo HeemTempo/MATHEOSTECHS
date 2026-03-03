@@ -53,19 +53,22 @@ const AdminUsersPage = () => {
 
   const toggleActiveMutation = useMutation({
     mutationFn: ({ id, is_active }: { id: number; is_active: boolean }) =>
-      usersApi.update(id, { is_active }),
+      is_active ? usersApi.activate(id) : usersApi.deactivate(id),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success(
-        variables.is_active ? 'User activated' : 'User deactivated',
+        variables.is_active ? 'User activated successfully!' : 'User deactivated successfully!',
         {
-          description: `User status has been updated successfully.`
+          description: variables.is_active 
+            ? 'The user can now log in to the system.' 
+            : 'The user can no longer log in to the system.'
         }
       );
     },
-    onError: () => {
-      toast.error('Failed to update user status', {
-        description: 'Please try again later.'
+    onError: (error: any) => {
+      const errorMsg = error?.response?.data?.error || 'Failed to update user status';
+      toast.error('Operation failed', {
+        description: errorMsg
       });
     },
   });
