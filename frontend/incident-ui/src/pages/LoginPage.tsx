@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { AlertCircle, ArrowLeft } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -25,9 +26,20 @@ export function LoginPage() {
         const { user, token } = response.data;
         if (user && token) {
           setAuth(user, token);
+          toast.success('Login successful!', {
+            description: `Welcome back, ${user.name}!`
+          });
           navigate('/dashboard');
         }
       }
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.error || 
+                          error?.response?.data?.message || 
+                          'Invalid email or password. Please try again.';
+      toast.error('Login failed', {
+        description: errorMessage
+      });
     },
   });
 

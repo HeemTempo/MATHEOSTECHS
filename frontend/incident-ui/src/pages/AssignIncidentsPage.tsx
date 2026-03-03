@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { Layout } from '../components/Layout';
 import { PageHeader } from '../components/PageHeader';
 import { LoadingSpinner } from '../components/LoadingSpinner';
@@ -41,10 +42,20 @@ export function AssignIncidentsPage() {
   const assignMutation = useMutation({
     mutationFn: ({ incidentId, operatorId }: { incidentId: number; operatorId: number }) =>
       incidentsApi.assign(incidentId, operatorId),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['incidents'] });
+      const operatorName = operators.find(o => o.id === variables.operatorId)?.name;
+      const incidentTitle = incidents.find(i => i.id === variables.incidentId)?.title;
+      toast.success('Incident assigned successfully!', {
+        description: `"${incidentTitle}" has been assigned to ${operatorName}.`
+      });
       setSelectedIncident(null);
       setSelectedOperator(null);
+    },
+    onError: (error: any) => {
+      toast.error('Failed to assign incident', {
+        description: error?.response?.data?.message || 'Please try again later.'
+      });
     },
   });
 
@@ -204,11 +215,11 @@ export function AssignIncidentsPage() {
               <div className="space-y-4">
                 <div className="text-center">
                   <p className="text-slate-400 mb-2">You are about to assign:</p>
-                  <p className="text-white font-medium">
-                    Incident #{selectedIncident}
+                  <p className="text-white font-medium text-lg">
+                    {incidents.find((i) => i.id === selectedIncident)?.title}
                   </p>
                   <p className="text-slate-400 my-2">to</p>
-                  <p className="text-white font-medium">
+                  <p className="text-white font-medium text-lg">
                     {operators.find((o) => o.id === selectedOperator)?.name}
                   </p>
                 </div>

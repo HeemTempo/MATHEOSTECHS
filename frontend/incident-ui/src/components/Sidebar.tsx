@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   AlertCircle, 
@@ -10,6 +10,7 @@ import {
   X,
   UserCheck
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { useAuthStore } from '../store/authStore';
 import { authApi } from '../api/auth';
 import { Button } from './ui/button';
@@ -17,16 +18,22 @@ import { USER_ROLES } from '../utils/constants';
 
 export function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, clearAuth } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
       await authApi.logout();
+      toast.success('Logged out successfully', {
+        description: 'See you next time!'
+      });
     } catch (error) {
-      // Silent error handling
+      // Silent error handling - still log out on frontend
+      toast.info('Logged out');
     } finally {
       clearAuth();
+      navigate('/');
     }
   };
 

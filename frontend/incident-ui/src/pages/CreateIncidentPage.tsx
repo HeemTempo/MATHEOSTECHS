@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -22,7 +23,15 @@ export function CreateIncidentPage() {
   const createMutation = useMutation({
     mutationFn: incidentsApi.create,
     onSuccess: (data) => {
+      toast.success('Incident created successfully!', {
+        description: 'Your incident has been reported and is now being tracked.'
+      });
       navigate(`/incidents/${data.data.id}`);
+    },
+    onError: (error: any) => {
+      toast.error('Failed to create incident', {
+        description: error?.response?.data?.message || 'Please try again later.'
+      });
     },
   });
 

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 import { Layout } from '../components/Layout';
 import { PageHeader } from '../components/PageHeader';
 import { LoadingSpinner } from '../components/LoadingSpinner';
@@ -19,7 +20,7 @@ const IncidentDetailPage = () => {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
   const [isEditing, setIsEditing] = useState(false);
-  const [status, setStatus] = useState(INCIDENT_STATUS.OPEN);
+  const [status, setStatus] = useState<'open' | 'investigating' | 'resolved' | 'closed'>(INCIDENT_STATUS.OPEN);
   const [assignedToId, setAssignedToId] = useState<number | null>(null);
   const [commentContent, setCommentContent] = useState('');
   const [statusChangeComment, setStatusChangeComment] = useState('');
@@ -32,7 +33,7 @@ const IncidentDetailPage = () => {
 
   const { data: usersResponse } = useQuery({
     queryKey: ['users'],
-    queryFn: usersApi.getAll,
+    queryFn: () => usersApi.getAll(),
     enabled: user?.role === USER_ROLES.ADMIN,
   });
 
@@ -42,7 +43,15 @@ const IncidentDetailPage = () => {
     mutationFn: (newStatus: string) => incidentsApi.updateStatus(Number(id), newStatus),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['incident', id] });
+      toast.success('Status updated successfully!', {
+        description: `Incident status changed to ${status}.`
+      });
       setIsEditing(false);
+    },
+    onError: (error: any) => {
+      toast.error('Failed to update status', {
+        description: error?.response?.data?.message || 'Please try again later.'
+      });
     },
   });
 
@@ -50,7 +59,15 @@ const IncidentDetailPage = () => {
     mutationFn: (userId: number) => incidentsApi.assign(Number(id), userId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['incident', id] });
+      toast.success('Incident assigned successfully!', {
+        description: 'The incident has been assigned to the selected user.'
+      });
       setIsEditing(false);
+    },
+    onError: (error: any) => {
+      toast.error('Failed to assign incident', {
+        description: error?.response?.data?.message || 'Please try again later.'
+      });
     },
   });
 
@@ -58,7 +75,13 @@ const IncidentDetailPage = () => {
     mutationFn: (comment: string) => commentsApi.create(Number(id), comment),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['incident', id] });
+      toast.success('Comment added successfully!');
       setCommentContent('');
+    },
+    onError: (error: any) => {
+      toast.error('Failed to add comment', {
+        description: error?.response?.data?.message || 'Please try again later.'
+      });
     },
   });
 
@@ -88,7 +111,7 @@ const IncidentDetailPage = () => {
           setStatusChangeComment('');
         }
       } catch (error) {
-        // Error handling
+        // Error already handled by mutation onError
       }
     } else {
       setIsEditing(false);
@@ -218,7 +241,7 @@ const IncidentDetailPage = () => {
                   <label className="block text-sm font-medium text-slate-300 mb-2">Status</label>
                   <select
                     value={status}
-                    onChange={(e) => setStatus(e.target.value)}
+                    onChange={(e) => setStatus(e.target.value as 'open' | 'investigating' | 'resolved' | 'closed')}
                     className="w-full px-3 py-2 bg-[#0f1117] border border-[#2e3149] rounded-md text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   >
                     {getAvailableStatuses(incident.status).map((s) => (
@@ -259,7 +282,7 @@ const IncidentDetailPage = () => {
                       className="w-full px-3 py-2 bg-[#0f1117] border border-[#2e3149] rounded-md text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     >
                       <option value="">Unassigned</option>
-                      {users?.map((u) => (
+                      {users?.map((u: any) => (
                         <option key={u.id} value={u.id}>
                           {u.name}
                         </option>

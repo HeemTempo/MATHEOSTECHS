@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { Layout } from '../components/Layout';
 import { PageHeader } from '../components/PageHeader';
 import { LoadingSpinner } from '../components/LoadingSpinner';
@@ -29,6 +30,9 @@ const AdminUsersPage = () => {
     mutationFn: usersApi.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
+      toast.success('User created successfully!', {
+        description: `${formData.name} has been added to the system.`
+      });
       setShowCreateForm(false);
       setFormData({
         name: '',
@@ -39,15 +43,30 @@ const AdminUsersPage = () => {
       setError('');
     },
     onError: (err: any) => {
-      setError(err.response?.data?.detail || 'Could not create user. Please try again.');
+      const errorMsg = err.response?.data?.detail || 'Could not create user. Please try again.';
+      setError(errorMsg);
+      toast.error('Failed to create user', {
+        description: errorMsg
+      });
     },
   });
 
   const toggleActiveMutation = useMutation({
     mutationFn: ({ id, is_active }: { id: number; is_active: boolean }) =>
       usersApi.update(id, { is_active }),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
+      toast.success(
+        variables.is_active ? 'User activated' : 'User deactivated',
+        {
+          description: `User status has been updated successfully.`
+        }
+      );
+    },
+    onError: () => {
+      toast.error('Failed to update user status', {
+        description: 'Please try again later.'
+      });
     },
   });
 
