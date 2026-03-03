@@ -1,5 +1,4 @@
 import axiosInstance from './axiosInstance';
-import type { User } from './auth';
 
 export interface Incident {
   id: number;

@@ -221,7 +221,7 @@ const IncidentDetailPage = () => {
                       </span>
                     </div>
                   </div>
-                  <p className="text-slate-300">{comment.content}</p>
+                  <p className="text-slate-300">{comment.comment}</p>
                 </div>
               ))}
               {(!incident.comments || incident.comments.length === 0) && (

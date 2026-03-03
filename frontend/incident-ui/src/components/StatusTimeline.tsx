@@ -8,7 +8,7 @@ interface StatusTimelineProps {
   currentStatus: string;
 }
 
-export function StatusTimeline({ updates, currentStatus }: StatusTimelineProps) {
+export function StatusTimeline({ updates }: StatusTimelineProps) {
   // Add current status as the first item if no updates
   const timelineItems = updates.length > 0 ? updates : [];
 

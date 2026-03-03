@@ -1,11 +1,11 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from './ProtectedRoute';
 import { USER_ROLES } from '../utils/constants';
-import LoginPage from '../pages/LoginPage';
-import DashboardPage from '../pages/DashboardPage';
-import IncidentsListPage from '../pages/IncidentsListPage';
+import { LoginPage } from '../pages/LoginPage';
+import { DashboardPage } from '../pages/DashboardPage';
+import { IncidentsListPage } from '../pages/IncidentsListPage';
 import IncidentDetailPage from '../pages/IncidentDetailPage';
-import CreateIncidentPage from '../pages/CreateIncidentPage';
+import { CreateIncidentPage } from '../pages/CreateIncidentPage';
 import AdminUsersPage from '../pages/AdminUsersPage';
 
 export const router = createBrowserRouter([
