@@ -1,13 +1,13 @@
 import axiosInstance from './axiosInstance';
 
 export interface AuditLog {
-  id: number;
+  id: string;
   action: string;
   entity_type: string;
-  entity_id: number;
+  entity_id: string;
   description: string;
   user: {
-    id: number;
+    id: string;
     name: string;
     email: string;
   };
@@ -21,7 +21,7 @@ export interface AuditLogsResponse {
 }
 
 export const auditLogApi = {
-  getIncidentAuditLogs: async (incidentId: number): Promise<AuditLogsResponse> => {
+  getIncidentAuditLogs: async (incidentId: string): Promise<AuditLogsResponse> => {
     const response = await axiosInstance.get(`/incidents/${incidentId}/audit-log`);
     return response.data;
   },

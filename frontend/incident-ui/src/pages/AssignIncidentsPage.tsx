@@ -13,8 +13,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 
 export function AssignIncidentsPage() {
   const queryClient = useQueryClient();
-  const [selectedIncident, setSelectedIncident] = useState<number | null>(null);
-  const [selectedOperator, setSelectedOperator] = useState<number | null>(null);
+  const [selectedIncident, setSelectedIncident] = useState<string | null>(null);
+  const [selectedOperator, setSelectedOperator] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'unassigned' | 'assigned'>('unassigned');
 
   // Fetch incidents based on tab
@@ -40,7 +40,7 @@ export function AssignIncidentsPage() {
 
   // Assign mutation
   const assignMutation = useMutation({
-    mutationFn: ({ incidentId, operatorId }: { incidentId: number; operatorId: number }) =>
+    mutationFn: ({ incidentId, operatorId }: { incidentId: string; operatorId: string }) =>
       incidentsApi.assign(incidentId, operatorId),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['incidents'] });

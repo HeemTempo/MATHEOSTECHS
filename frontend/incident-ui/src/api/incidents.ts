@@ -1,18 +1,18 @@
 import axiosInstance from './axiosInstance';
 
 export interface Incident {
-  id: number;
+  id: string;
   title: string;
   description: string;
   severity: 'low' | 'medium' | 'high' | 'critical';
   status: 'open' | 'investigating' | 'resolved' | 'closed';
   reporter: {
-    id: number;
+    id: string;
     name: string;
     email: string;
   };
   assigned_user: {
-    id: number;
+    id: string;
     name: string;
     email: string;
   } | null;
@@ -23,13 +23,13 @@ export interface Incident {
 }
 
 export interface IncidentUpdate {
-  id: number;
-  incident_id: number;
+  id: string;
+  incident_id: string;
   old_status: string;
   new_status: string;
-  updated_by: number;
+  updated_by: string;
   updater: {
-    id: number;
+    id: string;
     name: string;
     email: string;
   };
@@ -37,12 +37,12 @@ export interface IncidentUpdate {
 }
 
 export interface Comment {
-  id: number;
-  incident_id: number;
-  user_id: number;
+  id: string;
+  incident_id: string;
+  user_id: string;
   comment: string;
   user: {
-    id: number;
+    id: string;
     name: string;
     email: string;
   };
@@ -84,8 +84,8 @@ export interface CreateIncidentData {
 export interface IncidentFilters {
   status?: string;
   severity?: string;
-  assigned_to?: number;
-  reported_by?: number;
+  assigned_to?: string;
+  reported_by?: string;
   search?: string;
   sort_by?: string;
   sort_order?: 'asc' | 'desc';
@@ -108,7 +108,7 @@ export const incidentsApi = {
     return response.data;
   },
 
-  getById: async (id: number): Promise<Incident> => {
+  getById: async (id: string): Promise<Incident> => {
     const response = await axiosInstance.get(`/incidents/${id}`);
     return response.data.data; // Extract data from response
   },
@@ -118,12 +118,12 @@ export const incidentsApi = {
     return response.data;
   },
 
-  updateStatus: async (id: number, status: string): Promise<IncidentResponse> => {
+  updateStatus: async (id: string, status: string): Promise<IncidentResponse> => {
     const response = await axiosInstance.put(`/incidents/${id}/status`, { status });
     return response.data;
   },
 
-  assign: async (id: number, assigned_to: number): Promise<IncidentResponse> => {
+  assign: async (id: string, assigned_to: string): Promise<IncidentResponse> => {
     const response = await axiosInstance.put(`/incidents/${id}/assign`, { assigned_to });
     return response.data;
   },

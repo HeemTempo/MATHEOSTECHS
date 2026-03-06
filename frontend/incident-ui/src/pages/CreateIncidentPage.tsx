@@ -22,11 +22,11 @@ export function CreateIncidentPage() {
 
   const createMutation = useMutation({
     mutationFn: incidentsApi.create,
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success('Incident created successfully!', {
         description: 'Your incident has been reported and is now being tracked.'
       });
-      navigate(`/incidents/${data.data.id}`);
+      navigate(`/incidents/`);
     },
     onError: (error: any) => {
       toast.error('Failed to create incident', {

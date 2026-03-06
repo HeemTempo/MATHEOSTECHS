@@ -57,7 +57,7 @@ export const usersApi = {
     return response.data;
   },
 
-  getById: async (id: number) => {
+  getById: async (id: string) => {
     const response = await axiosInstance.get<UserResponse>(`/users/${id}`);
     return response.data;
   },
@@ -67,12 +67,12 @@ export const usersApi = {
     return response.data;
   },
 
-  update: async (id: number, data: UpdateUserData) => {
+  update: async (id: string, data: UpdateUserData) => {
     const response = await axiosInstance.put<UserResponse>(`/users/${id}`, data);
     return response.data;
   },
 
-  delete: async (id: number): Promise<void> => {
+  delete: async (id: string): Promise<void> => {
     await axiosInstance.delete(`/users/${id}`);
   },
 
@@ -86,12 +86,12 @@ export const usersApi = {
     return response.data;
   },
 
-  activate: async (id: number) => {
+  activate: async (id: string) => {
     const response = await axiosInstance.put<UserResponse>(`/users/${id}/activate`);
     return response.data;
   },
 
-  deactivate: async (id: number) => {
+  deactivate: async (id: string) => {
     const response = await axiosInstance.put<UserResponse>(`/users/${id}/deactivate`);
     return response.data;
   },

@@ -52,7 +52,7 @@ const AdminUsersPage = () => {
   });
 
   const toggleActiveMutation = useMutation({
-    mutationFn: ({ id, is_active }: { id: number; is_active: boolean }) =>
+    mutationFn: ({ id, is_active }: { id: string; is_active: boolean }) =>
       is_active ? usersApi.activate(id) : usersApi.deactivate(id),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['users'] });

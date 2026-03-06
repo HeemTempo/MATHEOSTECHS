@@ -21,13 +21,13 @@ const IncidentDetailPage = () => {
   const { user } = useAuthStore();
   const [isEditing, setIsEditing] = useState(false);
   const [status, setStatus] = useState<'open' | 'investigating' | 'resolved' | 'closed'>(INCIDENT_STATUS.OPEN);
-  const [assignedToId, setAssignedToId] = useState<number | null>(null);
+  const [assignedToId, setAssignedToId] = useState<string | null>(null);
   const [commentContent, setCommentContent] = useState('');
   const [statusChangeComment, setStatusChangeComment] = useState('');
 
   const { data: incident, isLoading, isError } = useQuery({
     queryKey: ['incident', id],
-    queryFn: () => incidentsApi.getById(Number(id)),
+    queryFn: () => incidentsApi.getById(id!),
     enabled: !!id,
   });
 
@@ -40,7 +40,7 @@ const IncidentDetailPage = () => {
   const users = usersResponse?.data || [];
 
   const updateStatusMutation = useMutation({
-    mutationFn: (newStatus: string) => incidentsApi.updateStatus(Number(id), newStatus),
+    mutationFn: (newStatus: string) => incidentsApi.updateStatus(id!, newStatus),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['incident', id] });
       toast.success('Status updated successfully!', {
@@ -56,7 +56,7 @@ const IncidentDetailPage = () => {
   });
 
   const assignMutation = useMutation({
-    mutationFn: (userId: number) => incidentsApi.assign(Number(id), userId),
+    mutationFn: (userId: string) => incidentsApi.assign(id!, userId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['incident', id] });
       toast.success('Incident assigned successfully!', {
@@ -72,7 +72,7 @@ const IncidentDetailPage = () => {
   });
 
   const addCommentMutation = useMutation({
-    mutationFn: (comment: string) => commentsApi.create(Number(id), comment),
+    mutationFn: (comment: string) => commentsApi.create(id!, comment),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['incident', id] });
       toast.success('Comment added successfully!');
@@ -278,7 +278,7 @@ const IncidentDetailPage = () => {
                     <label className="block text-sm font-medium text-slate-300 mb-2">Assign To</label>
                     <select
                       value={assignedToId || ''}
-                      onChange={(e) => setAssignedToId(e.target.value ? Number(e.target.value) : null)}
+                      onChange={(e) => setAssignedToId(e.target.value || null)}
                       className="w-full px-3 py-2 bg-[#0f1117] border border-[#2e3149] rounded-md text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     >
                       <option value="">Unassigned</option>
